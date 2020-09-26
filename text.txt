@@ -1,0 +1,28 @@
+blankcard
+{person} no {animal} wa {color} desu
+the {person}'s {animal} is {color}
+sentence
+flashcard
+aka
+red
+color
+flashcard
+shiro
+white
+color
+flashcard
+inu
+dog
+animal
+flashcard
+buta
+pig
+animal
+flashcard
+kaichou
+president
+person
+flashcard
+isha
+doctor
+person
