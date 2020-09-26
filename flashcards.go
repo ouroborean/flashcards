@@ -1,34 +1,35 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"strings"
-	"math/rand"
-	"bufio"
 	"time"
 )
 
+//added a comment
 type Flashcard struct {
-	side1		string
-	side2		string
-	cardType	string
-	wordType	string
+	side1    string
+	side2    string
+	cardType string
+	wordType string
 }
 
 type Incision struct {
-	startIndex1		int
-	stopIndex1		int
-	startIndex2		int
-	stopIndex2		int
-	wordType		string
-	wordTypeArray 	[]rune
-	wordSide1		string
-	wordSide2		string
+	startIndex1   int
+	stopIndex1    int
+	startIndex2   int
+	stopIndex2    int
+	wordType      string
+	wordTypeArray []rune
+	wordSide1     string
+	wordSide2     string
 }
 
-func flashCardReg (card Flashcard) (string){
+func flashCardReg(card Flashcard) string {
 	var correctAnswer string
 	randomSide := rand.Intn(2)
 
@@ -43,32 +44,27 @@ func flashCardReg (card Flashcard) (string){
 	return correctAnswer
 }
 
-func findRandomFlashCard (wordType string, allCards []Flashcard) (string, string){
+func findRandomFlashCard(wordType string, allCards []Flashcard) (string, string) {
 
-	
 	var validCards []Flashcard
 	var chosenSide1 string
 	var chosenSide2 string
 
-	
-	
 	for _, card := range allCards {
 		if card.wordType == wordType {
 			validCards = append(validCards, card)
 		}
 	}
 
-	
-
 	var chosenCard = rand.Intn(len(validCards))
 
 	chosenSide1 = validCards[chosenCard].side1
 	chosenSide2 = validCards[chosenCard].side2
 	return chosenSide1, chosenSide2
-	
+
 }
 
-func checkForBlankSide2 (blank Incision, side string) (Incision) {
+func checkForBlankSide2(blank Incision, side string) Incision {
 
 	recording := false
 	var tempStartIndex int
@@ -81,7 +77,7 @@ func checkForBlankSide2 (blank Incision, side string) (Incision) {
 
 			recording = false
 			tempStopIndex = i
-			if (string(tempWordTypeArray) == blank.wordType){
+			if string(tempWordTypeArray) == blank.wordType {
 				blank.startIndex2 = tempStartIndex
 				blank.stopIndex2 = tempStopIndex
 			} else {
@@ -105,19 +101,16 @@ func checkForBlankSide2 (blank Incision, side string) (Incision) {
 
 }
 
-func checkForBlankSide1 (side string) (Incision, bool) {
-	
+func checkForBlankSide1(side string) (Incision, bool) {
+
 	var blank Incision
 	loopContinue := false
 	recording := false
 	for i, v := range side {
 
-
 		if string(v) == "}" {
 			blank.stopIndex1 = i
 			blank.wordType = string(blank.wordTypeArray)
-
-			
 
 			blank.wordTypeArray = blank.wordTypeArray[:0]
 			recording = false
@@ -139,28 +132,28 @@ func checkForBlankSide1 (side string) (Incision, bool) {
 	}
 
 	return blank, loopContinue
-	
+
 }
 
-func flashCardBlank (card Flashcard, allCards []Flashcard) (string){
-	
+func flashCardBlank(card Flashcard, allCards []Flashcard) string {
+
 	//Store the blankcard's sides so we can actually fucking
 	//work with them
 	tempSide1 := card.side1
 	tempSide2 := card.side2
 	var blank Incision
 	//Bool to stop loop when we're finally done
-	
+
 	var correctAnswer string
 	randomSide := rand.Intn(2)
 
 	//Bool to start the wordType recording process
-	
+
 	for {
-		mightBeBlanks:= true
+		mightBeBlanks := true
 
 		blank, mightBeBlanks = checkForBlankSide1(tempSide1)
-		
+
 		blank = checkForBlankSide2(blank, tempSide2)
 
 		if mightBeBlanks == false {
@@ -171,8 +164,6 @@ func flashCardBlank (card Flashcard, allCards []Flashcard) (string){
 
 		tempSide1 = string(tempSide1[:blank.startIndex1]) + blank.wordSide1 + string(tempSide1[blank.stopIndex1+1:])
 		tempSide2 = string(tempSide2[:blank.startIndex2]) + blank.wordSide2 + string(tempSide2[blank.stopIndex2+1:])
-
-		
 
 	}
 
@@ -189,7 +180,7 @@ func flashCardBlank (card Flashcard, allCards []Flashcard) (string){
 
 }
 
-func main(){
+func main() {
 	var lastCard int
 	counter := 0
 	var x Flashcard
@@ -200,15 +191,13 @@ func main(){
 			fmt.Fprintf(os.Stderr, "dup3: %v\n", err)
 			continue
 		}
-		
+
 		var allCards []Flashcard
 
 		allStrings := strings.Split(string(data), "\n")
-		
+
 		for _, line := range allStrings {
-			
-	
-			
+
 			if counter == 0 {
 				x.cardType = strings.TrimSpace(line)
 			}
@@ -226,14 +215,13 @@ func main(){
 			counter++
 		}
 
-		
 		for {
 			rand.Seed(time.Now().UnixNano())
 			randomCard := rand.Intn(len(allCards))
-			
+
 			if randomCard == lastCard {
 
-				if (lastCard == len(allCards)-1){
+				if lastCard == len(allCards)-1 {
 					randomCard--
 				} else {
 					randomCard++
@@ -250,7 +238,6 @@ func main(){
 				correctAnswer = flashCardBlank(allCards[randomCard], allCards)
 			}
 
-
 			input := bufio.NewScanner(os.Stdin)
 			input.Scan()
 			guess := input.Text()
@@ -259,17 +246,14 @@ func main(){
 				break
 			}
 			if guess == correctAnswer {
-				fmt.Println("Correct!\n")
+				fmt.Println("Correct!")
+				fmt.Println("")
 			} else {
 				fmt.Println("Incorrect :(")
-				fmt.Println("The correct answer was :", correctAnswer + "\n")
+				fmt.Println("The correct answer was :", correctAnswer+"\n")
 			}
 		}
 
-
-
 	}
-
-	
 
 }
